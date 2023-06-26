@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package router;
+
+option go_package = "./proto/router;router";
+
+service Router {
+	//对外提供添加服务
+	rpc AddRouter(RouterInfo) returns (Response) {}
+	rpc DeleteRouter(RouterId) returns (Response) {}
+	rpc UpdateRouter(RouterInfo) returns (Response) {}
+	rpc FindRouterByID(RouterId) returns (RouterInfo) {}
+	rpc FindAllRouter(FindAll) returns (AllRouter) {}
+}
+message RouterInfo {
+	int64 id = 1;
+}
+
+message RouterId {
+	int64 id = 1;
+}
+
+message FindAll {
+
+}
+
+message Response {
+	string msg =1 ;
+}
+
+message AllRouter {
+	repeated RouterInfo router_info = 1;
+}
+
+
