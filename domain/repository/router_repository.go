@@ -2,6 +2,7 @@ package repository
 
 import (
 	"github.com/jinzhu/gorm"
+	"github.com/sirupsen/logrus"
 	"github.com/yejiabin9/router/domain/model"
 )
 
@@ -32,13 +33,13 @@ type RouterRepository struct {
 
 // 初始化表
 func (u *RouterRepository) InitTable() error {
-	return u.mysqlDb.CreateTable(&model.Router{}).Error
+	return u.mysqlDb.CreateTable(&model.Router{}, &model.RouterPath{}).Error
 }
 
 // 根据ID查找Router信息
 func (u *RouterRepository) FindRouterByID(routerID int64) (router *model.Router, err error) {
 	router = &model.Router{}
-	return router, u.mysqlDb.First(router, routerID).Error
+	return router, u.mysqlDb.Preload("RouterPath").First(router, routerID).Error
 }
 
 // 创建Router信息
@@ -48,7 +49,30 @@ func (u *RouterRepository) CreateRouter(router *model.Router) (int64, error) {
 
 // 根据ID删除Router信息
 func (u *RouterRepository) DeleteRouterByID(routerID int64) error {
-	return u.mysqlDb.Where("id = ?", routerID).Delete(&model.Router{}).Error
+	tx := u.mysqlDb.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	if tx.Error != nil {
+		logrus.Error(tx.Error)
+		return tx.Error
+	}
+	if err := u.mysqlDb.Where("id = ?", routerID).Delete(&model.Router{}).Error; err != nil {
+		tx.Rollback()
+		logrus.Error(err)
+		return err
+	}
+
+	if err := u.mysqlDb.Where("router_id = ?", routerID).Delete(&model.RouterPath{}).Error; err != nil {
+		tx.Rollback()
+		logrus.Error(err)
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 // 更新Router信息
@@ -58,5 +82,5 @@ func (u *RouterRepository) UpdateRouter(router *model.Router) error {
 
 // 获取结果集
 func (u *RouterRepository) FindAll() (routerAll []model.Router, err error) {
-	return routerAll, u.mysqlDb.Find(&routerAll).Error
+	return routerAll, u.mysqlDb.Preload("RouterPath").Find(&routerAll).Error
 }
