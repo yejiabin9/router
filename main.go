@@ -10,14 +10,11 @@ import (
 
 	//"github.com/afex/hystrix-go/hystrix"
 	"github.com/asim/go-micro/plugins/registry/consul/v3"
-	ratelimit "github.com/asim/go-micro/plugins/wrapper/ratelimiter/uber/v3"
-	opentracing2 "github.com/asim/go-micro/plugins/wrapper/trace/opentracing/v3"
 	"github.com/asim/go-micro/v3"
 	"github.com/asim/go-micro/v3/registry"
 	"github.com/asim/go-micro/v3/server"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/opentracing/opentracing-go"
 	service2 "github.com/yejiabin9/router/domain/service"
 	"github.com/yejiabin9/router/handler"
 	router "github.com/yejiabin9/router/proto/router"
@@ -156,12 +153,12 @@ func main() {
 		//添加注册中心
 		micro.Registry(consul),
 		//添加链路追踪
-		micro.WrapHandler(opentracing2.NewHandlerWrapper(opentracing.GlobalTracer())),
-		micro.WrapClient(opentracing2.NewClientWrapper(opentracing.GlobalTracer())),
+		//micro.WrapHandler(opentracing2.NewHandlerWrapper(opentracing.GlobalTracer())),
+		//micro.WrapClient(opentracing2.NewClientWrapper(opentracing.GlobalTracer())),
 		//只作为客户端的时候起作用，如果存在调用别人的情况，原则上不去主动调用
 		//micro.WrapClient(hystrix2.NewClientHystrixWrapper()),
 		//添加限流
-		micro.WrapHandler(ratelimit.NewHandlerWrapper(1000)),
+		//micro.WrapHandler(ratelimit.NewHandlerWrapper(1000)),
 	)
 
 	service.Init()
