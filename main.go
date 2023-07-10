@@ -29,7 +29,7 @@ var (
 	//服务地址
 	hostIp = "39.104.82.215"
 	//服务地址
-	serviceHost = "localhost"
+	serviceHost = "192.168.31.50"
 	//服务端口
 	servicePort = "8087"
 
@@ -164,10 +164,10 @@ func main() {
 	service.Init()
 
 	//只能执行一遍
-	err = repository.NewRouterRepository(db).InitTable()
-	if err != nil {
-		logrus.Fatal(err)
-	}
+	//err = repository.NewRouterRepository(db).InitTable()
+	//if err != nil {
+	//	logrus.Fatal(err)
+	//}
 
 	// 注册句柄，可以快速操作已开发的服务
 	routerDataService := service2.NewRouterDataService(repository.NewRouterRepository(db), clientset)
